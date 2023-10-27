@@ -1,48 +1,157 @@
-import { derived, writable } from 'svelte/store';
+import { derived, readable, readonly, writable } from 'svelte/store';
+import isObject from 'isobject';
+import deepmerge from 'deepmerge';
+// import merge from 'merge';
 
-type Translation = {
+export type Translation = {
     [K: string]: string|Translation;
 };
 
-const currentLocale = writable<string|null>(null);
+const currentLocale = (() => {
+    const { set, subscribe } = writable<string|null>(null);
+    let val: string|null = null;
+    subscribe((_val) => {
+        val = _val;
+    });
 
-const currentTrans = writable<Translation|null>(null);
+    const _set = (locale: string|null) => {
+        if (locale === val) {
+            return;
+        }
 
-const allTranslations: Record<string, Translation> = {};
-(<any>window).allTranslations = allTranslations;
+        if (locale === null) {
+            set(null);
+            return;
+        }
 
-const init = (translations: Record<string, Translation> = {}, locale: string|null = null) => {
-    Object.assign(allTranslations, translations);
+        if (locale in _allTranslations === false) {
+            throw new Error(`[@xaro/svelte-i18n] No translations for locale: "${locale}"`);
+        }
+
+        set(locale);
+    }
+
+    const _update = (cb: () => string|null) => _set(cb());
+
+    return {
+        set:    _set,
+        update: _update,
+        subscribe,
+    }
+})();
+
+export {
+    currentLocale as locale
+};
+
+const _allLocales = writable<Set<string>>(new Set());
+export const allLocales = readonly(_allLocales);
+
+const _allTranslations: Record<string, Translation> = {};
+(<any>window).allTranslations = _allTranslations;
+
+export const init = (translations: Record<string, Translation> = {}, locale: string|null = null) => {
+    if (! isObject(translations)) {
+        throw new Error(`[@xaro/svelte-i18n] Translations must be an object`);
+    }
+
+    Object.assign(_allTranslations, translations);
+
+    _allLocales.update(s => {
+        for (const key in translations) {
+            s.add(key);
+        }
+        return s;
+    });
 
     if (locale) {
-        if (locale in allTranslations === false) {
-            throw new Error(`No translations for locale: ${locale}`);
+        if (locale in _allTranslations === false) {
+            throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
         }
-        currentLocale.set(locale);
-        currentTrans.set(allTranslations[locale]);
+    }
+
+    currentLocale.set(locale);
+}
+
+export const hasLocale = (locale: string) => locale in _allTranslations;
+
+export const setTranslation = (locale: string, path: string|string[], value: string|Translation) => {
+    if (locale in _allTranslations === false) {
+        // throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
+        _allTranslations[locale] = {};
+        _allLocales.update(s => s.add(locale));
+    }
+
+    let obj = _allTranslations[locale];
+
+    let arr: string[] = Array.isArray(path) ? path : path.split(/\.+/);
+
+    for (let i = 0; i < arr.length; i++) {
+        const key = arr[i];
+        if (!key) {
+            throw new Error('[@xaro/svelte-i18n] Path cannot be empty, end or begin with a separator character');
+        } else if (i === arr.length - 1) {
+            obj[key] = value;
+        } else {
+            if (key in obj === false) {
+                obj[key] = {};
+            }
+            obj = <Translation>obj[key];
+        }
     }
 }
 
-const setTranslation = (locale: string, path: string|string[], value: string|Translation) => {
-    let obj = allTranslations[locale];
-    let prevObj = obj;
+export const addTranslation = (locale: string, path: string|string[], value: string|Translation) => {
+    if (locale in _allTranslations === false) {
+        // throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
+        setTranslation(locale, path, value);
+        return;
+    }
 
-    if (Array.isArray(path)) {
+    let obj = _allTranslations[locale];
 
-    } else {
-        const parts = path.split('.');
-        for (let i = 0; i < parts.length; i++) {
-            const part = parts[i];
-            
-        }
-        for (const part of parts) {
-            prevObj = obj;
-            if (part in obj === false) {
-                obj[part] = {};
+    let arr: string[] = Array.isArray(path) ? path : path.split(/\.+/);
+
+    for (let i = 0; i < arr.length; i++) {
+        const key = arr[i];
+        if (!key) {
+            throw new Error('[@xaro/svelte-i18n] Path cannot be empty, end or begin with a separator character');
+        } else if (i === arr.length - 1) {
+            if (key in obj && isObject(obj[key]) && isObject(value)) {
+                obj[key] = deepmerge(<Translation>obj[key], <Translation>value);
+            } else {
+                obj[key] = value;
             }
-            obj = <Translation>obj[part];
+        } else {
+            if (key in obj === false) {
+                obj[key] = {};
+            }
+            obj = <Translation>obj[key];
         }
-        prevObj[parts.length - 1] = value;
+    }
+}
+
+export const removeTranslation = (locale: string, path: string|string[]) => {
+    if (locale in _allTranslations === false) {
+        throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
+    }
+
+    let obj = _allTranslations[locale];
+
+    let arr: string[] = Array.isArray(path) ? path : path.split(/\.+/);
+
+    for (let i = 0; i < arr.length; i++) {
+        const key = arr[i];
+        if (!key) {
+            throw new Error('[@xaro/svelte-i18n] Path cannot be empty, end or begin with a separator character');
+        } else if (i === arr.length - 1) {
+            delete obj[key];
+        } else {
+            if (key in obj === false) {
+                obj[key] = {};
+            }
+            obj = <Translation>obj[key];
+        }
     }
 }
 
@@ -51,11 +160,11 @@ const translate = ($locale: string|null, path: string|string[], params: Record<s
         return Array.isArray(path) ? path.join(',') : path;
     }
 
-    if ($locale in allTranslations === false) {
-        throw new Error(`No translations for locale: ${$locale}`);
+    if ($locale in _allTranslations === false) {
+        throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${$locale}`);
     }
     
-    let obj: Translation = allTranslations[$locale];
+    let obj: Translation = _allTranslations[$locale];
 
     const withdraw = (key: string) => {
         if (typeof obj[key] === 'string') {
@@ -117,20 +226,9 @@ const translate = ($locale: string|null, path: string|string[], params: Record<s
     return Array.isArray(path) ? path.join(',') : path;
 }
 
-const t = derived(
+export const t = derived(
     currentLocale,
-    ($locale) => (path: string|string[], params: Record<string, any> = {}) => translate($locale, path, params)
+    ($locale) =>
+        (path: string|string[], params: Record<string, any> = {}) =>
+            translate($locale, path, params)
 );
-
-export {
-    init,
-    setTranslation,
-    currentLocale as locale,
-    t,
-    // setLocale,
-    // addLocale,
-    // removeLocale,
-    // addTranslation,
-    // removeTranslation,
-    // t,
-};
