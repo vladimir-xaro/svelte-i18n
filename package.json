@@ -1,0 +1,46 @@
+{
+    "name": "@xaro/svelte-i18n",
+    "description": "Svelte i18n library with dynamic add/change translations",
+    "version": "0.0.1",
+    "main": "src/index.ts",
+    "module": "dist/svelte-i18n.mjs",
+    "types": "dist/svelte-i18n.d.ts",
+    "scripts": {
+        "build": "node esbuild.config.mjs",
+        "watch": "node esbuild.config.mjs --watch",
+        "release": "release-it --"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vladimir-xaro/svelte-i18n.git"
+    },
+    "keywords": [
+        "front-end",
+        "svelte",
+        "i18n"
+    ],
+    "author": "Vladimir Slavgorodskiy <vladimir.xaro@gmail.com>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/vladimir-xaro/svelte-i18n/issues"
+    },
+    "homepage": "https://github.com/vladimir-xaro/svelte-i18n#readme",
+    "dependencies": {
+        "svelte": "^4.0.5"
+    },
+    "devDependencies": {
+        "@tsconfig/svelte": "^5.0.2",
+        "esbuild": "^0.19.3",
+        "esbuild-sass-plugin": "^2.15.0",
+        "esbuild-svelte": "^0.8.0",
+        "path": "^0.12.7",
+        "release-it": "^16.2.1",
+        "svelte-preprocess": "^5.0.4",
+        "typescript": "^5.2.2"
+    },
+    "release-it": {
+        "github": {
+            "release": true
+        }
+    }
+}
