@@ -73,7 +73,7 @@ declare const removeTranslation: (locale: string, path: string | string[]) => vo
  * @example $t([ 'fields', 'requred' ])
  * @example $t([ 'fields', 'requred.name' ]) // if "required.name" not exists - will use "required"
  */
-declare const t: import('svelte/store').Readable<string>;
+declare const t: import('svelte/store').Readable<(path: string | string[], params?: Record<string, any>) => string>;
 
 export {
     currentLocale as locale,
