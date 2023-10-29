@@ -1,7 +1,7 @@
 {
     "name": "@xaro/svelte-i18n",
     "description": "Svelte i18n library with dynamic add/change translations",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "main": "src/index.ts",
     "module": "dist/svelte-i18n.mjs",
     "types": "dist/svelte-i18n.d.ts",
