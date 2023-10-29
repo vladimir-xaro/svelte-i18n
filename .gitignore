@@ -1,5 +1,6 @@
 /node_modules
 /public
+.env
 esbuild.config.mjs
 package-lock.json
 plugins.esbuild.mjs
