@@ -1,6 +1,12 @@
+import { Writable } from 'svelte/store';
+
 type Translation = {
     [K: string]: string | Translation;
 };
+
+interface CurrentLocaleStore extends Writable<string | null> {
+    setNullIf(this: void, locale: string | null): void;
+}
 
 /**
  * Writable current locale store
@@ -35,6 +41,12 @@ declare const init: (translations?: Record<string, Translation>, locale?: string
  * Checks locale code exists
  */
 declare const hasLocale: (locale: string) => boolean;
+
+/**
+ * Removes the locale and its translations
+ * @returns { boolean } Result of deletion
+ */
+declare const removeLocale: (locale: string) => boolean;
 
 /**
  * Adds translation to path (Replace existing translations)
@@ -76,10 +88,13 @@ declare const removeTranslation: (locale: string, path: string | string[]) => vo
 declare const t: import('svelte/store').Readable<(path: string | string[], params?: Record<string, any>) => string>;
 
 export {
+    type Translation,
+    type CurrentLocaleStore,
     currentLocale as locale,
     allLocales,
     init,
     hasLocale,
+    removeLocale,
     setTranslation,
     addTranslation,
     removeTranslation,

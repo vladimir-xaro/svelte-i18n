@@ -20,11 +20,17 @@ const currentLocale = (() => {
     }
     set(locale);
   };
-  const _update = (cb) => _set(cb());
+  const _update = (cb) => _set(cb(val));
+  const setNullIf = (locale) => {
+    if (val !== null && locale === val) {
+      _set(locale);
+    }
+  };
   return {
     set: _set,
     update: _update,
-    subscribe
+    subscribe,
+    setNullIf
   };
 })();
 const _allLocales = writable(/* @__PURE__ */ new Set());
@@ -50,13 +56,28 @@ const init = (translations = {}, locale = null) => {
   currentLocale.set(locale);
 };
 const hasLocale = (locale) => locale in _allTranslations;
+const removeLocale = (locale) => {
+  if (locale in _allTranslations) {
+    delete _allTranslations[locale];
+    currentLocale.setNullIf(locale);
+    return true;
+  }
+  return false;
+};
 const setTranslation = (locale, path, value) => {
   if (locale in _allTranslations === false) {
     _allTranslations[locale] = {};
     _allLocales.update((s) => s.add(locale));
   }
-  let obj = _allTranslations[locale];
   let arr = Array.isArray(path) ? path : path.split(/\.+/);
+  if (!arr.length) {
+    if (!isObject(value)) {
+      throw new Error("[@xaro/svelte-i18n] Translation cannot be a string when no path is given");
+    }
+    _allTranslations[locale] = value;
+    return;
+  }
+  let obj = _allTranslations[locale];
   for (let i = 0; i < arr.length; i++) {
     const key = arr[i];
     if (!key) {
@@ -76,8 +97,15 @@ const addTranslation = (locale, path, value) => {
     setTranslation(locale, path, value);
     return;
   }
-  let obj = _allTranslations[locale];
   let arr = Array.isArray(path) ? path : path.split(/\.+/);
+  if (!arr.length) {
+    if (!isObject(value)) {
+      throw new Error("[@xaro/svelte-i18n] Translation cannot be a string when no path is given");
+    }
+    _allTranslations[locale] = value;
+    return;
+  }
+  let obj = _allTranslations[locale];
   for (let i = 0; i < arr.length; i++) {
     const key = arr[i];
     if (!key) {
@@ -189,6 +217,7 @@ export {
   hasLocale,
   init,
   currentLocale as locale,
+  removeLocale,
   removeTranslation,
   setTranslation,
   t

@@ -1,4 +1,4 @@
-import { derived, readonly, writable } from 'svelte/store';
+import { Readable, Writable, derived, readonly, writable } from 'svelte/store';
 import isObject from 'isobject';
 import deepmerge from 'deepmerge';
 // import merge from 'merge';
@@ -7,7 +7,11 @@ export type Translation = {
     [K: string]: string|Translation;
 };
 
-const currentLocale = (() => {
+export interface CurrentLocaleStore extends Writable<string|null> {
+    setNullIf(this: void, locale: string|null): void;
+}
+
+const currentLocale: CurrentLocaleStore = (() => {
     const { set, subscribe } = writable<string|null>(null);
     let val: string|null = null;
     subscribe((_val) => {
@@ -31,12 +35,19 @@ const currentLocale = (() => {
         set(locale);
     }
 
-    const _update = (cb: () => string|null) => _set(cb());
+    const _update = (cb: (locale: string|null) => string|null) => _set(cb(val));
+
+    const setNullIf = (locale: string|null) => {
+        if (val !== null && locale === val) {
+            _set(locale);
+        }
+    }
 
     return {
         set:    _set,
         update: _update,
         subscribe,
+        setNullIf,
     }
 })();
 
@@ -44,8 +55,8 @@ export {
     currentLocale as locale
 };
 
-const _allLocales = writable<Set<string>>(new Set());
-export const allLocales = readonly(_allLocales);
+const _allLocales: Writable<Set<string>> = writable<Set<string>>(new Set());
+export const allLocales: Readable<Set<string>> = readonly(_allLocales);
 
 const _allTranslations: Record<string, Translation> = {};
 (<any>window).allTranslations = _allTranslations;
@@ -75,6 +86,18 @@ export const init = (translations: Record<string, Translation> = {}, locale: str
 
 export const hasLocale = (locale: string) => locale in _allTranslations;
 
+export const removeLocale = (locale: string) => {
+    if (locale in _allTranslations) {
+        delete _allTranslations[locale];
+
+        currentLocale.setNullIf(locale);
+
+        return true;
+    }
+
+    return false;
+}
+
 export const setTranslation = (locale: string, path: string|string[], value: string|Translation) => {
     if (locale in _allTranslations === false) {
         // throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
@@ -82,9 +105,19 @@ export const setTranslation = (locale: string, path: string|string[], value: str
         _allLocales.update(s => s.add(locale));
     }
 
-    let obj = _allTranslations[locale];
-
     let arr: string[] = Array.isArray(path) ? path : path.split(/\.+/);
+
+    if (!arr.length) {
+        if (!isObject(value)) {
+            throw new Error('[@xaro/svelte-i18n] Translation cannot be a string when no path is given');
+        }
+
+        _allTranslations[locale] = <Translation>value;
+
+        return;
+    }
+
+    let obj = _allTranslations[locale];
 
     for (let i = 0; i < arr.length; i++) {
         const key = arr[i];
@@ -108,9 +141,19 @@ export const addTranslation = (locale: string, path: string|string[], value: str
         return;
     }
 
-    let obj = _allTranslations[locale];
-
     let arr: string[] = Array.isArray(path) ? path : path.split(/\.+/);
+
+    if (!arr.length) {
+        if (!isObject(value)) {
+            throw new Error('[@xaro/svelte-i18n] Translation cannot be a string when no path is given');
+        }
+
+        _allTranslations[locale] = <Translation>value;
+
+        return;
+    }
+
+    let obj = _allTranslations[locale];
 
     for (let i = 0; i < arr.length; i++) {
         const key = arr[i];
