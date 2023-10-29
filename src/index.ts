@@ -1,4 +1,4 @@
-import { derived, readable, readonly, writable } from 'svelte/store';
+import { derived, readonly, writable } from 'svelte/store';
 import isObject from 'isobject';
 import deepmerge from 'deepmerge';
 // import merge from 'merge';
