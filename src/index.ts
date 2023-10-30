@@ -98,7 +98,12 @@ export const removeLocale = (locale: string) => {
     return false;
 }
 
-export const setTranslation = (locale: string, path: string|string[], value: string|Translation) => {
+export const setTranslation = (
+    locale:     string,
+    path:       string|string[],
+    value:      string|Translation,
+    setLocale:  boolean = false
+) => {
     if (locale in _allTranslations === false) {
         // throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
         _allTranslations[locale] = {};
@@ -132,9 +137,18 @@ export const setTranslation = (locale: string, path: string|string[], value: str
             obj = <Translation>obj[key];
         }
     }
+
+    if (setLocale) {
+        currentLocale.set(locale);
+    }
 }
 
-export const addTranslation = (locale: string, path: string|string[], value: string|Translation) => {
+export const addTranslation = (
+    locale:     string,
+    path:       string|string[],
+    value:      string|Translation,
+    setLocale:  boolean = false
+) => {
     if (locale in _allTranslations === false) {
         // throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
         setTranslation(locale, path, value);
@@ -172,9 +186,17 @@ export const addTranslation = (locale: string, path: string|string[], value: str
             obj = <Translation>obj[key];
         }
     }
+
+    if (setLocale) {
+        currentLocale.set(locale);
+    }
 }
 
-export const removeTranslation = (locale: string, path: string|string[]) => {
+export const removeTranslation = (
+    locale:     string,
+    path:       string|string[],
+    setLocale:  boolean = false
+) => {
     if (locale in _allTranslations === false) {
         throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
     }
@@ -195,6 +217,10 @@ export const removeTranslation = (locale: string, path: string|string[]) => {
             }
             obj = <Translation>obj[key];
         }
+    }
+
+    if (setLocale) {
+        currentLocale.set(locale);
     }
 }
 

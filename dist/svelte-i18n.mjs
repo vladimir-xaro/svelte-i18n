@@ -64,7 +64,7 @@ const removeLocale = (locale) => {
   }
   return false;
 };
-const setTranslation = (locale, path, value) => {
+const setTranslation = (locale, path, value, setLocale = false) => {
   if (locale in _allTranslations === false) {
     _allTranslations[locale] = {};
     _allLocales.update((s) => s.add(locale));
@@ -91,8 +91,11 @@ const setTranslation = (locale, path, value) => {
       obj = obj[key];
     }
   }
+  if (setLocale) {
+    currentLocale.set(locale);
+  }
 };
-const addTranslation = (locale, path, value) => {
+const addTranslation = (locale, path, value, setLocale = false) => {
   if (locale in _allTranslations === false) {
     setTranslation(locale, path, value);
     return;
@@ -122,6 +125,9 @@ const addTranslation = (locale, path, value) => {
       }
       obj = obj[key];
     }
+  }
+  if (setLocale) {
+    currentLocale.set(locale);
   }
 };
 const removeTranslation = (locale, path) => {

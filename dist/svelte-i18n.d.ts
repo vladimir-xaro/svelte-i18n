@@ -63,8 +63,13 @@ declare const removeLocale: (locale: string) => boolean;
  * addTranslation('en', 'fields', { required: 'This field cannot be empty' })
  * // Locale translations will:
  * { fields: { required: 'This field cannot be empty', unique: 'This field must be unique' } }
-*/
-declare const addTranslation: (locale: string, path: string | string[], value: string | Translation) => void;
+ * 
+ * @param { string } locale
+ * @param { string | string[] } path
+ * @param { string | Translation } value
+ * @param { boolean } [setLocale=false] // Set locale after add translation (default: false)
+ */
+declare const addTranslation: (locale: string, path: string | string[], value: string | Translation, setLocale: boolean) => void;
 
 /**
  * Sets translation to path (Replace ALL translations in path)
@@ -75,8 +80,13 @@ declare const addTranslation: (locale: string, path: string | string[], value: s
  * setTranslation('en', 'fields', { required: 'This field cannot be empty' })
  * // Locale translations will:
  * { fields: { required: 'This field cannot be empty' } }
-*/
-declare const setTranslation: (locale: string, path: string | string[], value: string | Translation) => void;
+ * 
+ * @param { string } locale
+ * @param { string | string[] } path
+ * @param { string | Translation } value
+ * @param { boolean } [setLocale=false] // Set locale after set translation (default: false)
+ */
+declare const setTranslation: (locale: string, path: string | string[], value: string | Translation, setLocale: boolean) => void;
 
 /**
  * Remove locale's translation by path
@@ -87,8 +97,12 @@ declare const setTranslation: (locale: string, path: string | string[], value: s
  * // Translation will:
  * { fields: { required: 'This field cannot be empty' } }
  * @summary Also removes inside paths
+ * 
+ * @param { string } locale
+ * @param { string | string[] } path
+ * @param { boolean } [setLocale=false] // Set locale after remove translation (default: false)
  */
-declare const removeTranslation: (locale: string, path: string | string[]) => void;
+declare const removeTranslation: (locale: string, path: string | string[], setLocale: boolean) => void;
 
 /**
  * Main translate derived store
