@@ -224,9 +224,14 @@ export const removeTranslation = (
     }
 }
 
-const translate = ($locale: string|null, path: string|string[], params: Record<string, any> = {}) => {
+const translate = (
+    $locale:        string|null,
+    path:           string|string[],
+    params?:        Record<string, any>,
+    defaultValue?:  string
+) => {
     if ($locale === null) {
-        return Array.isArray(path) ? path.join(',') : path;
+        return defaultValue || (Array.isArray(path) ? path.join(',') : path);
     }
 
     if ($locale in _allTranslations === false) {
@@ -238,10 +243,12 @@ const translate = ($locale: string|null, path: string|string[], params: Record<s
     const withdraw = (key: string) => {
         if (typeof obj[key] === 'string') {
             let val = <string>obj[key];
-            const keys = Object.keys(params);
-            if (keys.length) {
-                for (const key of keys) {
-                    val = val.replaceAll(`{{${key}}}`, params[key]);
+            if (isObject(params)) {
+                const keys = Object.keys(params!);
+                if (keys.length) {
+                    for (const key of keys) {
+                        val = val.replaceAll(`{{${key}}}`, params![key]);
+                    }
                 }
             }
             return val;
@@ -275,7 +282,7 @@ const translate = ($locale: string|null, path: string|string[], params: Record<s
                         parts.splice(-1);
                     }
                 }
-                return Array.isArray(path) ? path.join(',') : path;
+                return defaultValue || (Array.isArray(path) ? path.join(',') : path);
             }
         }
     } else {
@@ -287,17 +294,17 @@ const translate = ($locale: string|null, path: string|string[], params: Record<s
                     return val;
                 }
             } else {
-                return path;
+                return defaultValue || path;
             }
         }
     }
 
-    return Array.isArray(path) ? path.join(',') : path;
+    return defaultValue || (Array.isArray(path) ? path.join(',') : path);
 }
 
 export const t = derived(
     currentLocale,
     ($locale) =>
-        (path: string|string[], params: Record<string, any> = {}) =>
-            translate($locale, path, params)
+        (path: string|string[], params: Record<string, any> = {}, defaultValue?: string) =>
+            translate($locale, path, params, defaultValue)
 );

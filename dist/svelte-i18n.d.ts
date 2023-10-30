@@ -107,11 +107,11 @@ declare const removeTranslation: (locale: string, path: string | string[], setLo
 /**
  * Main translate derived store
  * @example $t('fields.requred')
- * @example $t('fields.requred', { attr: 'name' })
+ * @example $t('fields.requred', { attr: 'name' }, 'Default translation if locale or translation not found')
  * @example $t([ 'fields', 'requred' ], { attr: 'name' })
  * @example $t([ 'fields', 'requred.name' ]) // if "required.name" not exists - will use "required"
  */
-declare const t: import('svelte/store').Readable<(path: string | string[], params?: Record<string, any>) => string>;
+declare const t: import('svelte/store').Readable<(path: string | string[], params?: Record<string, any>, defaultValue?: string) => string>;
 
 export {
     type Translation,
