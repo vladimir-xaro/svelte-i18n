@@ -5,7 +5,14 @@ type Translation = {
 };
 
 interface CurrentLocaleStore extends Writable<string | null> {
-    setNullIf(this: void, locale: string | null): void;
+    /**
+     * Sets locale to null if:
+     * - current locale is not null
+     * - passed locale is not null
+     * - current locale === passed locale
+     * 
+     * Returns success status
+     */
 }
 
 /**
@@ -16,9 +23,7 @@ interface CurrentLocaleStore extends Writable<string | null> {
  * To add new locales, use:
  * 
  * - `init` method (`Warning: See method description`)
- * 
  * - `addTranslation`
- * 
  * - `setTranslation`
  */
 declare const currentLocale: import('svelte/store').Writable<string|null>;
@@ -74,6 +79,12 @@ declare const setTranslation: (locale: string, path: string | string[], value: s
 
 /**
  * Remove locale's translation by path
+ * @example
+ * // For example initial locale translation:
+ * { fields: { required: 'This field cannot be empty', unique: 'This field must be unique' } }
+ * removeTranslation('en', 'fields.unique');
+ * // Translation will:
+ * { fields: { required: 'This field cannot be empty' } }
  * @summary Also removes inside paths
  */
 declare const removeTranslation: (locale: string, path: string | string[]) => void;
@@ -82,7 +93,7 @@ declare const removeTranslation: (locale: string, path: string | string[]) => vo
  * Main translate derived store
  * @example $t('fields.requred')
  * @example $t('fields.requred', { attr: 'name' })
- * @example $t([ 'fields', 'requred' ])
+ * @example $t([ 'fields', 'requred' ], { attr: 'name' })
  * @example $t([ 'fields', 'requred.name' ]) // if "required.name" not exists - will use "required"
  */
 declare const t: import('svelte/store').Readable<(path: string | string[], params?: Record<string, any>) => string>;
