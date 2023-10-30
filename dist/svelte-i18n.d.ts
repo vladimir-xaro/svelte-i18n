@@ -13,6 +13,7 @@ interface CurrentLocaleStore extends Writable<string | null> {
      * 
      * Returns success status
      */
+    setNullIf(this: void, locale: string | null): boolean;
 }
 
 /**
