@@ -64,7 +64,9 @@ export {
     currentLocale as locale
 };
 
-const _defaultTranslations: Writable<Record<string, string>> = writable<Record<string, string>>({});
+let _defaultTranslations: Record<string, string> = {};
+const defaultTranslations: Writable<Record<string, string>> = writable<Record<string, string>>(_defaultTranslations);
+defaultTranslations.subscribe(s => _defaultTranslations = s);
 
 const _allLocales: Writable<Set<string>> = writable<Set<string>>(new Set());
 export const allLocales: Readable<Set<string>> = readonly(_allLocales);
@@ -98,7 +100,7 @@ export const init = (options?: InitOptions) => {
         }
 
         if (Object.keys(options.defaultTranslations).length) {
-            _defaultTranslations.update(s => {
+            defaultTranslations.update(s => {
                 Object.assign(s, options.defaultTranslations);
                 return s;
             });
@@ -264,12 +266,19 @@ const translate = (
     params?:        Record<string, any>,
     defaultValue?:  string
 ) => {
-    if ($locale === null) {
-        return defaultValue || (Array.isArray(path) ? path.join(',') : path);
+    const returnDefault = () => {
+        return defaultValue || (
+            $locale && $locale in _defaultTranslations
+                ? _defaultTranslations[$locale!]
+                : (Array.isArray(path) ? path.join(',') : path)
+        );
     }
-    
-    if ($locale in _allTranslations === false) {
-        return defaultValue || (Array.isArray(path) ? path.join(',') : path);
+
+    if (
+        $locale === null ||
+        $locale in _allTranslations === false
+    ) {
+        return returnDefault();
     }
     
     let obj: Translation = _allTranslations[$locale];
@@ -316,7 +325,7 @@ const translate = (
                         parts.splice(-1);
                     }
                 }
-                return defaultValue || (Array.isArray(path) ? path.join(',') : path);
+                return returnDefault();
             }
         }
     } else {
@@ -333,7 +342,7 @@ const translate = (
         }
     }
 
-    return defaultValue || (Array.isArray(path) ? path.join(',') : path);
+    return returnDefault();
 }
 
 export const t = derived(
