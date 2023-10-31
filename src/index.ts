@@ -311,12 +311,11 @@ const translate = (
                     return val;
                 }
             } else {
-                const parts = item.split('.');
+                const parts = item.split(/\.+/);
                 parts.splice(-1);
                 while (parts.length) {
                     const _item = parts.join('.');
                     if (_item in obj) {
-                        const val = withdraw(item);
                         if (val !== null) {
                             return val;
                         }
@@ -330,7 +329,7 @@ const translate = (
             }
         }
     } else {
-        const parts = path.split('.');
+        const parts = path.split(/\.+/);
         for (const part of parts) {
             if (part in obj) {
                 const val = withdraw(part);
