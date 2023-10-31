@@ -1,7 +1,6 @@
 import { Readable, Writable, derived, readonly, writable } from 'svelte/store';
 import isObject from 'isobject';
 import deepmerge from 'deepmerge';
-// import merge from 'merge';
 
 export type Translation = {
     [K: string]: string|Translation;
