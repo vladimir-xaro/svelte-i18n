@@ -8,9 +8,9 @@ export type Translation = {
 };
 
 export type InitOptions = {
-    translations:           Record<string, Translation>;
-    locale:                 string | null;
-    defaultTranslations:    Record<string, string>;
+    translations?:          Record<string, Translation>;
+    locale?:                string | null;
+    defaultTranslations?:   Record<string, string>;
 }
 
 export interface CurrentLocaleStore extends Writable<string|null> {
@@ -99,7 +99,7 @@ export const init = (options?: InitOptions) => {
             throw new Error(`[@xaro/svelte-i18n] options.defaultTranslations must be an object if passed`);
         }
 
-        if (Object.keys(options.defaultTranslations).length) {
+        if (Object.keys(options.defaultTranslations!).length) {
             defaultTranslations.update(s => {
                 Object.assign(s, options.defaultTranslations);
                 return s;

@@ -5,9 +5,9 @@ type Translation = {
 };
 
 type InitOptions = {
-    translations:           Record<string, Translation>;
-    locale:                 string | null;
-    defaultTranslations:    Record<string, string>;
+    translations?:          Record<string, Translation>;
+    locale?:                string | null;
+    defaultTranslations?:   Record<string, string>;
 }
 
 interface CurrentLocaleStore extends Writable<string | null> {
