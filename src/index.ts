@@ -316,6 +316,7 @@ const translate = (
                 while (parts.length) {
                     const _item = parts.join('.');
                     if (_item in obj) {
+                        const val = withdraw(_item);
                         if (val !== null) {
                             return val;
                         }
