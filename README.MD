@@ -29,6 +29,7 @@ Library for Svelte for easy localization of your application
 <script lang="ts">
     import {
         type Translation,       // Type of locale translations
+        type InitOptions,       // Type of init method options argument type
         type CurrentLocaleStore,// currentLocale store (Extended Writable with setNullIf method)
         currentLocale,          // Writable locale store (returns string or null)
         allLocales,             // Readonly all loaded locales (Readonly< Set<string> >)
