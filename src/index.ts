@@ -325,6 +325,7 @@ const translate = (
                         parts.splice(-1);
                     }
                 }
+                console.log('here');
                 return returnDefault();
             }
         }
@@ -337,7 +338,7 @@ const translate = (
                     return val;
                 }
             } else {
-                return defaultValue || path;
+                return returnDefault();
             }
         }
     }
