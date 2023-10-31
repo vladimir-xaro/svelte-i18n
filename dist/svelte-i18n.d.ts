@@ -4,6 +4,12 @@ type Translation = {
     [K: string]: string | Translation;
 };
 
+type InitOptions = {
+    translations:           Record<string, Translation>;
+    locale:                 string | null;
+    defaultTranslations:    Record<string, string>;
+}
+
 interface CurrentLocaleStore extends Writable<string | null> {
     /**
      * Sets locale to null if:
@@ -41,7 +47,7 @@ declare const allLocales: import('svelte/store').Readable<string[]>;
  * 
  * `If you call the function again, the passed translations can replace the existing ones, since here they are combined by the "Object.assign" method`
  */
-declare const init: (translations?: Record<string, Translation>, locale?: string | null) => void;
+declare const init: (options?: InitOptions) => void;
 
 /**
  * Checks locale code exists
@@ -115,6 +121,7 @@ declare const t: import('svelte/store').Readable<(path: string | string[], param
 
 export {
     type Translation,
+    type InitOptions,
     type CurrentLocaleStore,
     currentLocale as locale,
     allLocales,

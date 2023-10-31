@@ -31,8 +31,11 @@ Library for Svelte for easy localization of your application
         type Translation,       // Type of locale translations
         type CurrentLocaleStore,// currentLocale store (Extended Writable with setNullIf method)
         currentLocale,          // Writable locale store (returns string or null)
-        allLocales,             // Readonly all loaded locales (returns Set)
-        init,                   // (Optionaly) Load initial translations and set currentLocale
+        allLocales,             // Readonly all loaded locales (Readonly< Set<string> >)
+        init,                   // (Optionaly)
+                                // - Load initial translations
+                                // - Set currentLocale
+                                // - Set defaultTranslation for non-existing paths
         hasLocale,              // Checks existing locale (returns boolean)
         removeLocale,           // Removes the locale and its translations
         addTranslation,         // Adds translation to path (Replace EXISTING translations in path)
@@ -51,11 +54,20 @@ Library for Svelte for easy localization of your application
         }
     }
 
-    // Here we load the initial translation and set the locale
-    init(langs, 'en');
+    // Here we load the initial translation
+    // Set the locale
+    // Set default translate for non-existing translation paths
+    init({
+        translations: langs,
+        defaultTranslations: {
+            en: 'No translation found'
+        },
+        locale: 'en',
+    });
     // === OR ===
     setTranslation('en', '', langs.en);
     $currentLocale = 'en'; // OR currentLocale.set('en')
+    // default translation can set in init function OR pass defaultValue to $t as 3rd parameter
 
 
     // Here we are adding translation to an existing locale:
@@ -122,7 +134,11 @@ Library for Svelte for easy localization of your application
 {$t('caption') /* "Hello" will be displayed */}
 
 <!-- "Hello 1" will be displayed here -->
-{$t('caption.main')}
+{$t('fields.required') /* "{{attr}} cannot be empty" will be displayed */}
+{$t('fields.required', { attr: 'Name' }) /* "Name cannot be empty" will be displayed */}
+{$t('fields.required.name') /* "Enter your name" will be displayed */}
+{$t('fields.required.email') /* "{{attr}} cannot be empty" will be displayed from `fields.required` */}
+{$t('fields.required.email', {}, 'No translation') /* "No Translation" will be displayed */}
 
-{$allLocales.join(', ') /* Get all locales (Only read) */}
+{Array.from($allLocales).join(', ') /* Get all locales (Readonly< Set<string> >) */}
 ```

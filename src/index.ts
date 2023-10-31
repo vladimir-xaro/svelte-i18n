@@ -7,6 +7,12 @@ export type Translation = {
     [K: string]: string|Translation;
 };
 
+export type InitOptions = {
+    translations:           Record<string, Translation>;
+    locale:                 string | null;
+    defaultTranslations:    Record<string, string>;
+}
+
 export interface CurrentLocaleStore extends Writable<string|null> {
     setNullIf(this: void, locale: string|null): void;
 }
@@ -58,33 +64,58 @@ export {
     currentLocale as locale
 };
 
+const _defaultTranslations: Writable<Record<string, string>> = writable<Record<string, string>>({});
+
 const _allLocales: Writable<Set<string>> = writable<Set<string>>(new Set());
 export const allLocales: Readable<Set<string>> = readonly(_allLocales);
 
 const _allTranslations: Record<string, Translation> = {};
 (<any>window).allTranslations = _allTranslations;
 
-export const init = (translations: Record<string, Translation> = {}, locale: string|null = null) => {
-    if (! isObject(translations)) {
-        throw new Error(`[@xaro/svelte-i18n] Translations must be an object`);
+export const init = (options?: InitOptions) => {
+    if (!options) {
+        return;
     }
 
-    Object.assign(_allTranslations, translations);
-
-    _allLocales.update(s => {
-        for (const key in translations) {
-            s.add(key);
+    if ('translations' in options) {
+        if (!isObject(options.translations)) {
+            throw new Error(`[@xaro/svelte-i18n] options.translations must be an object if passed`);
         }
-        return s;
-    });
 
-    if (locale) {
-        if (locale in _allTranslations === false) {
-            throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${locale}`);
+        Object.assign(_allTranslations, options.translations);
+
+        _allLocales.update(s => {
+            for (const key in options.translations) {
+                s.add(key);
+            }
+            return s;
+        });
+    }
+
+    if ('defaultTranslations' in options) {
+        if (! isObject(options.defaultTranslations)) {
+            throw new Error(`[@xaro/svelte-i18n] options.defaultTranslations must be an object if passed`);
+        }
+
+        if (Object.keys(options.defaultTranslations).length) {
+            _defaultTranslations.update(s => {
+                Object.assign(s, options.defaultTranslations);
+                return s;
+            });
         }
     }
 
-    currentLocale.set(locale);
+    if ('locale' in options) {
+        if (typeof options.locale !== 'string') {
+            throw new Error(`[@xaro/svelte-i18n] options.locale must be a string, ${typeof options.locale} passed`);
+        }
+
+        if (options.locale! in _allTranslations === false) {
+            throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${options.locale}`);
+        }
+
+        currentLocale.set(options.locale);
+    }
 }
 
 export const hasLocale = (locale: string) => locale in _allTranslations;
