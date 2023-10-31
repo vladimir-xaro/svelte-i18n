@@ -10,8 +10,9 @@ Library for Svelte for easy localization of your application
     init({
         en: {
             rules: {
-                'required': '{{attr}} cannot be empty',
-                'required.name': 'Enter your name' // Extended translation
+                'required':             '{{attr}} cannot be empty',
+                'required.name':        'Enter your name',          // Extended translation
+                'required.name.first':  'Enter your first name',    // Extended translation
             }
         }
     }, 'en');
@@ -20,7 +21,10 @@ Library for Svelte for easy localization of your application
 {$t('rules.required', { attr: 'Attribute' }) /* "Attribute cannot be empty" will be displayed */}
 {$t([ 'rules', 'required.name' ])            /* "Enter your name" will be displayed */}
 {$t([ 'rules', 'required.etc' ])             /* "{{attr}} cannot be empty" will be displayed */}
+{$t([ 'rules', 'required.name.first' ])      /* "Enter your first name" will be displayed */}
+{$t([ 'rules', 'required.name.second' ])     /* "Enter your name" will be displayed (used [ 'rules', 'required.name' ] for non-existing path) */}
 {$t([ 'rules', 'smth' ])                     /* "rules.smth" will be displayed (non-existing path) */}
+{$t([ 'rules', 'smth' ], {}, 'no exists')    /* "no exists" will be displayed (non-existing path) */}
 ```
 
 
@@ -50,8 +54,24 @@ Library for Svelte for easy localization of your application
             caption: 'Hello',
             rules: {
                 'required': '{{attr}} cannot be empty',
-                'required.name': 'Enter your name'
+                /**
+                 * Extended fields works only when path given in array!!!
+                 * @example {$t([ 'rules', 'required.name' ])}
+                 * @example {$t([ 'rules', 'required.name.first' ])}
+                 */
+                'required.name': 'Enter your name',
+                'required.name.first': 'Enter your first name',
             },
+            // Also valid:
+            'rules.2': {
+                /**
+                 * works:
+                 * @example {$t([ 'rules.2', 'required' ])}
+                 * 
+                 * @example {$t([ 'rules.2', 'required.name' ])}
+                 */
+                required: 'Attribute required'
+            }
         }
     }
 
@@ -135,11 +155,14 @@ Library for Svelte for easy localization of your application
 {$t('caption') /* "Hello" will be displayed */}
 
 <!-- "Hello 1" will be displayed here -->
-{$t('fields.required') /* "{{attr}} cannot be empty" will be displayed */}
-{$t('fields.required', { attr: 'Name' }) /* "Name cannot be empty" will be displayed */}
-{$t('fields.required.name') /* "Enter your name" will be displayed */}
-{$t('fields.required.email') /* "{{attr}} cannot be empty" will be displayed from `fields.required` */}
-{$t('fields.required.email', {}, 'No translation') /* "No Translation" will be displayed */}
+{$t('rules.required') /* "{{attr}} cannot be empty" will be displayed */}
+{$t('rules.required', { attr: 'Name' }) /* "Name cannot be empty" will be displayed */}
+{$t([ 'rules', 'required.name' ]) /* "Enter your name" will be displayed. Extended fields works only when path given in array!!! */}
+{$t([ 'rules', 'required.name.first' ]) /* "Enter your first name" will be displayed */}
+{$t([ 'rules', 'required.name.second' ]) /* "Enter your name" will be displayed (used [ 'rules', 'required.name' ], because 'required.name.second' does not exist) */}
+{$t([ 'rules', 'required.name.second' ], {}, 'default value will not be displayed') /* "Enter your name" will be displayed. Default value works only for general non-existing properties, not extended */}
+{$t([ 'rules', 'required.email' ]) /* "{{attr}} cannot be empty" will be displayed from `fields.required` */}
+{$t([ 'rules', 'required.email' ], {}, 'No translation') /* "No Translation" will be displayed */}
 
 {Array.from($allLocales).join(', ') /* Get all locales (Readonly< Set<string> >) */}
 ```
