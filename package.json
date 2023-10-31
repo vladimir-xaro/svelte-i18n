@@ -8,7 +8,7 @@
     "scripts": {
         "build": "node esbuild.config.mjs",
         "watch": "node esbuild.config.mjs --watch",
-        "release": "release-it --"
+        "release": "npm run build && release-it --"
     },
     "repository": {
         "type": "git",
