@@ -69,7 +69,7 @@ declare const removeLocale: (locale: string) => boolean;
  * @param { string | Translation } value
  * @param { boolean } [setLocale=false] // Set locale after add translation (default: false)
  */
-declare const addTranslation: (locale: string, path: string | string[], value: string | Translation, setLocale: boolean) => void;
+declare const addTranslation: (locale: string, path: string | string[], value: string | Translation, setLocale?: boolean) => void;
 
 /**
  * Sets translation to path (Replace ALL translations in path)
@@ -86,7 +86,7 @@ declare const addTranslation: (locale: string, path: string | string[], value: s
  * @param { string | Translation } value
  * @param { boolean } [setLocale=false] // Set locale after set translation (default: false)
  */
-declare const setTranslation: (locale: string, path: string | string[], value: string | Translation, setLocale: boolean) => void;
+declare const setTranslation: (locale: string, path: string | string[], value: string | Translation, setLocale?: boolean) => void;
 
 /**
  * Remove locale's translation by path
@@ -102,7 +102,7 @@ declare const setTranslation: (locale: string, path: string | string[], value: s
  * @param { string | string[] } path
  * @param { boolean } [setLocale=false] // Set locale after remove translation (default: false)
  */
-declare const removeTranslation: (locale: string, path: string | string[], setLocale: boolean) => void;
+declare const removeTranslation: (locale: string, path: string | string[], setLocale?: boolean) => void;
 
 /**
  * Main translate derived store
