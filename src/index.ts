@@ -18,6 +18,9 @@ const currentLocale: CurrentLocaleStore = (() => {
         val = _val;
     });
 
+    /**
+     * @throws { Error } If locale not found
+     */
     const _set = (locale: string|null) => {
         if (locale === val) {
             return;
@@ -233,9 +236,9 @@ const translate = (
     if ($locale === null) {
         return defaultValue || (Array.isArray(path) ? path.join(',') : path);
     }
-
+    
     if ($locale in _allTranslations === false) {
-        throw new Error(`[@xaro/svelte-i18n] No translations for locale: ${$locale}`);
+        return defaultValue || (Array.isArray(path) ? path.join(',') : path);
     }
     
     let obj: Translation = _allTranslations[$locale];
