@@ -107,6 +107,9 @@ Library for Svelte for easy localization of your application
     //         'unique': '{{attr}} must be unique',
     //         'unique.email': 'A user with this email already exists',
     //     },
+    //     'rules.2': {
+    //          required: 'Attribute required'
+    //     }
     // }
 
 
@@ -154,7 +157,6 @@ Library for Svelte for easy localization of your application
 
 {$t('caption') /* "Hello" will be displayed */}
 
-<!-- "Hello 1" will be displayed here -->
 {$t('rules.required') /* "{{attr}} cannot be empty" will be displayed */}
 {$t('rules.required', { attr: 'Name' }) /* "Name cannot be empty" will be displayed */}
 {$t([ 'rules', 'required.name' ]) /* "Enter your name" will be displayed. Extended fields works only when path given in array!!! */}
@@ -163,6 +165,8 @@ Library for Svelte for easy localization of your application
 {$t([ 'rules', 'required.name.second' ], {}, 'default value will not be displayed') /* "Enter your name" will be displayed. Default value works only for general non-existing properties, not extended */}
 {$t([ 'rules', 'required.email' ]) /* "{{attr}} cannot be empty" will be displayed from `fields.required` */}
 {$t([ 'rules', 'required.email' ], {}, 'No translation') /* "No Translation" will be displayed */}
+{$t([ 'rules.2', 'required' ]) /* "Attribute required" will be displayed */}
+{$t([ 'rules.2', 'required.name' ]) /* "Enter your name" from [ 'rules', 'required.name' ] will be displayed, because [ 'rules.2', 'required.name' ] does not exists */}
 
 {Array.from($allLocales).join(', ') /* Get all locales (Readonly< Set<string> >) */}
 ```
